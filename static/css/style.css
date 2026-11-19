@@ -418,3 +418,54 @@ body {
         padding: 22px;
     }
 }
+
+/* ==========================================
+   FIXED SIDEBAR - LICENSELOOP
+========================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1000;
+}
+
+/* Keep main content beside the fixed sidebar */
+.main-content {
+    margin-left: 322px;
+    width: calc(100% - 322px);
+    min-height: 100vh;
+}
+
+/* Keep the sidebar footer at the bottom */
+.sidebar-footer {
+    margin-top: auto;
+}
+
+/* Smooth sidebar scrolling */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
