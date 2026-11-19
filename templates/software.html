@@ -1,0 +1,225 @@
+
+{% extends "base.html" %}
+
+{% block title %}Software Management | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h2>Software Management</h2>
+    <p>Manage your organization's software products.</p>
+</div>
+
+<!-- ADD SOFTWARE -->
+
+<div class="content-card mb-4">
+
+    <h5>Add New Software</h5>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Software Name *</label>
+                <input type="text"
+                       name="software_name"
+                       class="form-control"
+                       placeholder="Enter software name"
+                       required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">Select Category</option>
+                    <option value="Productivity">Productivity</option>
+                    <option value="Design">Design</option>
+                    <option value="Security">Security</option>
+                    <option value="Development">Development</option>
+                    <option value="Communication">Communication</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Vendor *</label>
+                <select name="vendor_id" class="form-select" required>
+                    <option value="">Select Vendor</option>
+
+                    {% for vendor in vendors %}
+                        <option value="{{ vendor[0] }}">
+                            {{ vendor[1] }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Description</label>
+                <input type="text"
+                       name="description"
+                       class="form-control"
+                       placeholder="Enter description">
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4">
+            <i class="bi bi-plus-circle"></i> Add Software
+        </button>
+
+    </form>
+</div>
+
+
+<!-- SEARCH AND FILTERS -->
+
+<div class="content-card mb-4">
+
+    <h5>Search and Filter Software</h5>
+
+    <form method="GET" action="{{ url_for('main.software_list') }}">
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <label class="form-label">Search Software</label>
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search by name..."
+                       value="{{ search }}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+
+                    {% for category in categories %}
+                        <option value="{{ category[0] }}"
+                            {% if selected_category == category[0] %}selected{% endif %}>
+                            {{ category[0] }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Vendor</label>
+                <select name="vendor" class="form-select">
+                    <option value="">All Vendors</option>
+
+                    {% for vendor in vendors %}
+                        <option value="{{ vendor[0] }}"
+                            {% if selected_vendor == vendor[0]|string %}selected{% endif %}>
+                            {{ vendor[1] }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search
+                </button>
+
+                <a href="{{ url_for('main.software_list') }}"
+                   class="btn btn-secondary">
+                    Clear
+                </a>
+            </div>
+
+        </div>
+
+    </form>
+</div>
+
+
+<!-- SOFTWARE TABLE -->
+
+<div class="content-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Software Products</h5>
+
+        <span class="badge bg-primary">
+            {{ software|length }} Products
+        </span>
+    </div>
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Software Name</th>
+                    <th>Category</th>
+                    <th>Vendor</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in software %}
+
+                <tr>
+                    <td>{{ item[0] }}</td>
+                    <td>{{ item[1] }}</td>
+                    <td>{{ item[3] or 'Not specified' }}</td>
+                    <td>{{ item[4] }}</td>
+                    <td>{{ item[2] or 'No description' }}</td>
+
+                    <td class="text-nowrap">
+
+                        <a href="{{ url_for('main.edit_software', software_id=item[0]) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            Edit
+                        </a>
+
+                        <form method="POST"
+                              action="{{ url_for('main.delete_software', software_id=item[0]) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('Delete this software?');">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="6" class="text-center">
+                        No software products found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

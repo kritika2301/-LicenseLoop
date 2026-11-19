@@ -1,0 +1,212 @@
+
+{% extends "base.html" %}
+
+{% block title %}Reports | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Heading -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2>Reports & Analytics</h2>
+            <p class="text-secondary">
+                Analyze license usage, renewals and software expenditure.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.export_reports_csv') }}"
+           class="btn btn-primary">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+    </div>
+
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+            <div class="content-card">
+                <h6 class="text-secondary">Total Licenses</h6>
+                <h2>{{ summary.total }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="content-card">
+                <h6 class="text-secondary">Active Licenses</h6>
+                <h2>{{ summary.active }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="content-card">
+                <h6 class="text-secondary">Expired Licenses</h6>
+                <h2>{{ summary.expired }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="content-card">
+                <h6 class="text-secondary">Expiring Within 30 Days</h6>
+                <h2>{{ summary.expiring }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- License Summary -->
+    <div class="content-card mb-4">
+
+        <h4 class="mb-3">License Status Report</h4>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Number of Licenses</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in status_data %}
+                    <tr>
+                        <td>
+                            {% if item[0] == 'Active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif item[0] == 'Expired' %}
+                                <span class="badge bg-danger">Expired</span>
+                            {% elif item[0] == 'Expiring Soon' %}
+                                <span class="badge bg-warning text-dark">Expiring Soon</span>
+                            {% elif item[0] == 'Suspended' %}
+                                <span class="badge bg-warning text-dark">Suspended</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item[1] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center">No records found.</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+
+    <!-- Upcoming Renewal Report -->
+    <div class="content-card mb-4">
+
+        <h4 class="mb-3">Upcoming Renewal Report</h4>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Vendor</th>
+                        <th>License Type</th>
+                        <th>Expiry Date</th>
+                        <th>Days Remaining</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in renewal_data %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2]|title }}</td>
+                        <td>{{ item[3] }}</td>
+                        <td>
+                            {% if item[4] < 0 %}
+                                <span class="badge bg-danger">
+                                    Expired
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ item[4] }} days
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            No upcoming renewals.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+
+    <!-- Expenditure Report -->
+    <div class="content-card">
+
+        <h4 class="mb-3">Software Expenditure Report</h4>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Vendor</th>
+                        <th>Currency</th>
+                        <th>Total Expenditure</th>
+                        <th>Number of Licenses</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in expenditure_data %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2] }}</td>
+                        <td>{{ "{:,.2f}".format(item[3]) }}</td>
+                        <td>{{ item[4] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            No expenditure records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+        <p class="text-secondary small mt-3 mb-0">
+            Expenditure is grouped by currency. Different currencies
+            are not combined into a single total.
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

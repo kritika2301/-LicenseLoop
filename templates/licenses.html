@@ -1,0 +1,222 @@
+
+{% extends "base.html" %}
+
+{% block title %}License Management | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>License Management</h2>
+            <p class="text-secondary">Manage software licenses and renewals.</p>
+        </div>
+        <span class="badge bg-primary fs-6">{{ licenses|length }} Licenses</span>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <!-- Add License -->
+    <div class="content-card mb-4">
+        <h4 class="mb-4">Add New License</h4>
+
+        <form method="POST" action="{{ url_for('main.licenses_list') }}">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Software *</label>
+                    <select name="software_id" class="form-select" required>
+                        <option value="">Select Software</option>
+                        {% for item in software_options %}
+                        <option value="{{ item[0] }}">
+                            {{ item[1] }} — {{ item[2] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">License Type *</label>
+                    <select name="license_type" class="form-select" required>
+                        <option value="">Select Type</option>
+                        <option value="subscription">Subscription</option>
+                        <option value="perpetual">Perpetual</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" name="quantity" class="form-control"
+                           min="1" required placeholder="Enter quantity">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Purchase Date *</label>
+                    <input type="date" name="purchase_date"
+                           class="form-control" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Expiry Date *</label>
+                    <input type="date" name="expiry_date"
+                           class="form-control" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Cost *</label>
+                    <input type="number" name="cost" class="form-control"
+                           min="0" step="0.01" required placeholder="Enter cost">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Currency</label>
+                    <select name="currency" class="form-select">
+                        <option value="INR" selected>INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="active" selected>Active</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-4">
+                + Add License
+            </button>
+        </form>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="content-card mb-4">
+        <h4 class="mb-3">Search and Filter Licenses</h4>
+
+        <form method="GET" action="{{ url_for('main.licenses_list') }}"
+              class="row g-3 align-items-end">
+
+            <div class="col-md-4">
+                <label class="form-label">Search Software</label>
+                <input type="text" name="search" class="form-control"
+                       value="{{ search }}" placeholder="Search software name...">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Vendor</label>
+                <select name="vendor" class="form-select">
+                    <option value="">All Vendors</option>
+                    {% for vendor in vendors %}
+                    <option value="{{ vendor[0] }}"
+                        {% if selected_vendor == vendor[0]|string %}selected{% endif %}>
+                        {{ vendor[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    {% for status in ['active', 'expired', 'cancelled', 'suspended'] %}
+                    <option value="{{ status }}"
+                        {% if selected_status == status %}selected{% endif %}>
+                        {{ status|title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{{ url_for('main.licenses_list') }}"
+                   class="btn btn-secondary">Clear</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- License List -->
+    <div class="content-card">
+        <h4 class="mb-4">All Licenses</h4>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Software</th>
+                        <th>Vendor</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Purchase Date</th>
+                        <th>Expiry Date</th>
+                        <th>Cost</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in licenses %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2] }}</td>
+                        <td>{{ item[3]|title }}</td>
+                        <td>{{ item[4] }}</td>
+                        <td>{{ item[5] }}</td>
+                        <td>{{ item[6] }}</td>
+                        <td>{{ item[7] }} {{ item[8] }}</td>
+                        <td>
+                            {% if item[9] == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif item[9] == 'expired' %}
+                                <span class="badge bg-danger">Expired</span>
+                            {% elif item[9] == 'suspended' %}
+                                <span class="badge bg-warning text-dark">Suspended</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.edit_license', license_id=item[0]) }}"
+                                   class="btn btn-sm btn-outline-primary">Edit</a>
+
+                                <form method="POST"
+                                      action="{{ url_for('main.delete_license', license_id=item[0]) }}"
+                                      onsubmit="return confirm('Delete this license?');">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center py-4">
+                            No licenses found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

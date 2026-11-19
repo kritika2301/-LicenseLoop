@@ -1,0 +1,118 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit License | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2>Edit License</h2>
+        <p class="text-secondary">Update license information.</p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="content-card">
+
+        <form method="POST">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Software *</label>
+                    <select name="software_id" class="form-select" required>
+                        {% for item in software_options %}
+                        <option value="{{ item[0] }}"
+                            {% if item[0] == license[1] %}selected{% endif %}>
+                            {{ item[1] }} — {{ item[2] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">License Type *</label>
+                    <select name="license_type" class="form-select" required>
+                        <option value="subscription"
+                            {% if license[2] == 'subscription' %}selected{% endif %}>
+                            Subscription
+                        </option>
+                        <option value="perpetual"
+                            {% if license[2] == 'perpetual' %}selected{% endif %}>
+                            Perpetual
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" name="quantity" min="1"
+                           class="form-control" value="{{ license[3] }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Purchase Date *</label>
+                    <input type="date" name="purchase_date"
+                           class="form-control"
+                           value="{{ license[4] }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Expiry Date *</label>
+                    <input type="date" name="expiry_date"
+                           class="form-control"
+                           value="{{ license[5] }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Cost *</label>
+                    <input type="number" name="cost" min="0" step="0.01"
+                           class="form-control" value="{{ license[6] }}" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Currency</label>
+                    <select name="currency" class="form-select">
+                        {% for currency in ['INR', 'USD', 'EUR', 'GBP'] %}
+                        <option value="{{ currency }}"
+                            {% if license[7] == currency %}selected{% endif %}>
+                            {{ currency }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        {% for status in ['active', 'expired', 'cancelled', 'suspended'] %}
+                        <option value="{{ status }}"
+                            {% if license[8] == status %}selected{% endif %}>
+                            {{ status|title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    Save Changes
+                </button>
+
+                <a href="{{ url_for('main.licenses_list') }}"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

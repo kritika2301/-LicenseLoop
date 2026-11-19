@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Software | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h2>Edit Software</h2>
+    <p>Update your software product information.</p>
+</div>
+
+<div class="content-card">
+
+    <h5 class="mb-4">Software Details</h5>
+
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Software Name *</label>
+                <input
+                    type="text"
+                    name="software_name"
+                    class="form-control"
+                    value="{{ software[1] }}"
+                    required
+                >
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+
+                    <option value="">Select Category</option>
+
+                    {% for category in [
+                        'Productivity',
+                        'Design',
+                        'Security',
+                        'Development',
+                        'Communication',
+                        'Other'
+                    ] %}
+
+                        <option
+                            value="{{ category }}"
+                            {% if software[3] == category %}selected{% endif %}
+                        >
+                            {{ category }}
+                        </option>
+
+                    {% endfor %}
+
+                    {% if software[3] and software[3] not in [
+                        'Productivity',
+                        'Design',
+                        'Security',
+                        'Development',
+                        'Communication',
+                        'Other'
+                    ] %}
+
+                        <option value="{{ software[3] }}" selected>
+                            {{ software[3] }}
+                        </option>
+
+                    {% endif %}
+
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Vendor *</label>
+                <select name="vendor_id" class="form-select" required>
+
+                    {% for vendor in vendors %}
+
+                        <option
+                            value="{{ vendor[0] }}"
+                            {% if software[4] == vendor[0] %}selected{% endif %}
+                        >
+                            {{ vendor[1] }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Description</label>
+                <input
+                    type="text"
+                    name="description"
+                    class="form-control"
+                    value="{{ software[2] or '' }}"
+                >
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i>
+                Save Changes
+            </button>
+
+            <a
+                href="{{ url_for('main.software_list') }}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,221 @@
+
+{% extends "base.html" %}
+
+{% block title %}Renewal Tracking | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="mb-4">
+        <h2>Renewal Tracking</h2>
+        <p class="text-secondary">
+            Monitor expired and upcoming software license renewals.
+        </p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+
+    <!-- Renewal Statistics -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="content-card">
+                <h6 class="text-secondary">Total Licenses</h6>
+                <h2>{{ stats.total }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="content-card">
+                <h6 class="text-secondary">Expiring Within 30 Days</h6>
+                <h2>{{ stats.expiring }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="content-card">
+                <h6 class="text-secondary">Expired Licenses</h6>
+                <h2>{{ stats.expired }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Renewal Reminders -->
+    <div class="content-card mb-4">
+
+        <h4 class="mb-3">Renewal Reminders</h4>
+
+        {% if reminders %}
+
+            {% for item in reminders %}
+
+                <div class="alert
+                    {% if item[7] == 'expired' %}
+                        alert-danger
+                    {% else %}
+                        alert-warning
+                    {% endif %}">
+
+                    <strong>{{ item[1] }}</strong>
+                    — {{ item[2] }}.
+
+                    {% if item[7] == 'expired' %}
+                        This license has expired.
+                    {% else %}
+                        This license is expiring soon.
+                    {% endif %}
+
+                    <br>
+
+                    <small>
+                        Expiry Date: {{ item[5] }}
+                    </small>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="text-secondary mb-0">
+                No upcoming renewal reminders.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- License Renewal Status -->
+    <div class="content-card">
+
+        <h4 class="mb-3">License Renewal Status</h4>
+
+        <div class="table-responsive">
+
+            <table class="table table-dark table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Vendor</th>
+                        <th>License Type</th>
+                        <th>Expiry Date</th>
+                        <th>Renewal Status</th>
+                        <th>Update Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in licenses %}
+
+                    <tr>
+
+                        <td>{{ item[1] }}</td>
+
+                        <td>{{ item[2] }}</td>
+
+                        <td>{{ item[3]|title }}</td>
+
+                        <td>{{ item[4] }}</td>
+
+                        <td>
+
+                            {% if item[6] == 'expired' %}
+
+                                <span class="badge bg-danger">
+                                    Expired
+                                </span>
+
+                            {% elif item[6] == 'expiring soon' %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Expiring Soon
+                                </span>
+
+                            {% elif item[6] == 'active' %}
+
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+
+                            {% elif item[6] == 'cancelled' %}
+
+                                <span class="badge bg-secondary">
+                                    Cancelled
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Suspended
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <form method="POST"
+                                  action="{{ url_for('main.update_renewal_status', license_id=item[0]) }}"
+                                  class="d-flex gap-2">
+
+                                <select name="status"
+                                        class="form-select form-select-sm">
+
+                                    {% for status in ['active', 'expired', 'suspended', 'cancelled'] %}
+
+                                    <option value="{{ status }}"
+                                        {% if item[5] == status %}selected{% endif %}>
+
+                                        {{ status|title }}
+
+                                    </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-primary">
+
+                                    Update
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            No licenses available.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

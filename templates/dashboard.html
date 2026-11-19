@@ -1,0 +1,302 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | LicenseLoop{% endblock %}
+
+{% block content %}
+
+<!-- Dashboard Heading -->
+<div class="page-heading d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h2>Dashboard</h2>
+        <p>Welcome back! Here's your license management overview.</p>
+    </div>
+
+    <a href="{{ url_for('main.renewals') }}" class="btn btn-primary">
+        <i class="bi bi-arrow-repeat"></i>
+        View Renewal Tracking
+    </a>
+</div>
+
+
+<!-- Welcome Card -->
+<div class="dashboard-welcome">
+    <h3>Welcome to LicenseLoop!</h3>
+    <p>Manage your software products, vendors and licenses from one central platform.</p>
+</div>
+
+
+<!-- Statistics -->
+<div class="row g-4 mt-3">
+
+    <div class="col-md-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#30265b;color:#a78bfa;">
+                <i class="bi bi-pc-display"></i>
+            </div>
+            <h6 class="mt-3">Total Software</h6>
+            <h3>{{ stats.total_software }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#183b59;color:#60a5fa;">
+                <i class="bi bi-key"></i>
+            </div>
+            <h6 class="mt-3">Total Licenses</h6>
+            <h3>{{ stats.total_licenses }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#164b36;color:#4ade80;">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h6 class="mt-3">Active Licenses</h6>
+            <h3>{{ stats.active_licenses - stats.expiring_soon }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#51252d;color:#f87171;">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <h6 class="mt-3">Expired Licenses</h6>
+            <h3>{{ stats.expired_licenses }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#503c1d;color:#facc15;">
+                <i class="bi bi-clock"></i>
+            </div>
+            <h6 class="mt-3">Expiring Soon</h6>
+            <h3>{{ stats.expiring_soon }}</h3>
+            <a href="{{ url_for('main.renewals') }}"
+               class="small text-decoration-none">
+                View renewal reminders →
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#42245e;color:#c084fc;">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
+            <h6 class="mt-3">Total Expenditure</h6>
+            <h3>₹{{ "{:,.2f}".format(stats.total_expenditure) }}</h3>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Renewal Tracking Summary -->
+<div class="content-card mt-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+        <div>
+            <h5>License Renewal Management</h5>
+            <p class="text-secondary mb-0">
+                Monitor expired licenses and upcoming renewals.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.renewals') }}"
+           class="btn btn-outline-primary">
+            Manage Renewals →
+        </a>
+
+    </div>
+
+    <div class="row g-3 mt-2">
+
+        <div class="col-md-6">
+            <div class="p-3 rounded"
+                 style="background:#51252d;">
+                <h6 style="color:#fca5a5;">Expired Licenses</h6>
+                <h3 style="color:#f87171;">
+                    {{ stats.expired_licenses }}
+                </h3>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 rounded"
+                 style="background:#503c1d;">
+                <h6 style="color:#fde68a;">Expiring Within 30 Days</h6>
+                <h3 style="color:#facc15;">
+                    {{ stats.expiring_soon }}
+                </h3>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Chart and Recent Licenses -->
+<div class="row g-4 mt-3">
+
+    <!-- License Status Chart -->
+    <div class="col-lg-5">
+        <div class="content-card">
+            <h5>License Status Overview</h5>
+
+            <div style="max-width:350px;margin:auto;">
+                <canvas id="licenseChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Recent Licenses Table -->
+    <div class="col-lg-7">
+        <div class="content-card">
+
+            <h5>Recent Licenses</h5>
+
+            <div class="table-container">
+
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Software</th>
+                            <th>Vendor</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for license in recent_licenses %}
+
+                        <tr>
+                            <td>{{ license[0] }}</td>
+                            <td>{{ license[1] }}</td>
+
+                            <td>
+                                {{ license[3].strftime('%d %b %Y') }}
+                            </td>
+
+                            <td>
+
+                                {% if license[4] == 'active' %}
+
+                                    <span class="status-active">
+                                        Active
+                                    </span>
+
+                                {% elif license[4] == 'expired' %}
+
+                                    <span class="status-expired">
+                                        Expired
+                                    </span>
+
+                                {% elif license[4] == 'expiring soon' %}
+
+                                    <span class="status-warning">
+                                        Expiring Soon
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-warning">
+                                        {{ license[4]|title }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                No licenses found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const chartElement = document.getElementById('licenseChart');
+
+new Chart(chartElement, {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: ['Active', 'Expired', 'Expiring Soon'],
+
+        datasets: [{
+
+            data: [
+                {{ stats.active_licenses - stats.expiring_soon }},
+                {{ stats.expired_licenses }},
+                {{ stats.expiring_soon }}
+            ],
+
+            backgroundColor: [
+                '#4ade80',
+                '#f87171',
+                '#facc15'
+            ],
+
+            borderWidth: 0
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+                position: 'bottom',
+
+                labels: {
+                    color: '#e5e7eb',
+                    padding: 20
+                }
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

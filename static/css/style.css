@@ -1,0 +1,420 @@
+
+/* General Settings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #0b0f19;
+    color: #e5e7eb;
+}
+
+/* Main Layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background-color: #111827;
+    padding: 25px 18px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #273244;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 50px;
+}
+
+.brand i {
+    font-size: 30px;
+    color: #a78bfa;
+}
+
+.menu-heading {
+    font-size: 11px;
+    color: #8490a5;
+    letter-spacing: 1.5px;
+    margin-bottom: 15px;
+    padding-left: 12px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 13px 14px;
+    border-radius: 9px;
+    color: #aeb8ca;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #25213f;
+    color: #ffffff;
+}
+
+.sidebar .nav-link.active {
+    background: linear-gradient(135deg, #6d45d9, #4338ca);
+    color: #ffffff;
+}
+
+.sidebar .nav-link i {
+    font-size: 18px;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 15px 5px;
+    color: #8995aa;
+    font-size: 12px;
+    border-top: 1px solid #273244;
+}
+
+.sidebar-footer i {
+    color: #a78bfa;
+    margin-right: 7px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Top Header */
+.topbar {
+    min-height: 85px;
+    padding: 18px 35px;
+    background-color: #111827;
+    border-bottom: 1px solid #273244;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar h6 {
+    color: #ffffff;
+    margin-bottom: 5px;
+    font-size: 15px;
+}
+
+.topbar small {
+    color: #8995aa;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    color: #d1d5db;
+}
+
+.profile > i {
+    font-size: 20px;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #4f46e5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+}
+
+/* Page Content */
+.page-content {
+    padding: 35px;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+
+    .sidebar {
+        width: 75px;
+        padding: 20px 10px;
+    }
+
+    .brand span,
+    .menu-heading,
+    .nav-link span,
+    .sidebar-footer span {
+        display: none;
+    }
+
+    .sidebar .nav-link {
+        justify-content: center;
+    }
+
+    .brand {
+        justify-content: center;
+    }
+
+    .page-content {
+        padding: 18px;
+    }
+
+    .topbar {
+        padding: 15px;
+    }
+}
+
+
+/* =====================================
+   LICENSELOOP DASHBOARD POLISH
+   ===================================== */
+
+/* Statistics Cards */
+
+.stat-card {
+    background: #151e2e !important;
+    border: 1px solid #273244;
+    border-radius: 14px;
+    padding: 24px;
+    min-height: 175px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: #8b5cf6;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Chart and Table Cards */
+
+.content-card {
+    background: #151e2e !important;
+    border: 1px solid #273244;
+    border-radius: 14px;
+    padding: 24px;
+    height: 100%;
+}
+
+.content-card h5 {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 22px;
+}
+
+
+/* Dark Table */
+
+.table-container {
+    background: #151e2e;
+    border: 1px solid #273244;
+    border-radius: 10px;
+    overflow-x: auto;
+}
+
+.table {
+    --bs-table-bg: #151e2e;
+    --bs-table-color: #e5e7eb;
+    --bs-table-border-color: #273244;
+    --bs-table-hover-bg: #202b3d;
+    --bs-table-hover-color: #ffffff;
+
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #202b3d !important;
+    color: #cbd5e1 !important;
+    border-color: #354157 !important;
+    padding: 15px;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    background: #151e2e !important;
+    color: #e5e7eb !important;
+    border-color: #273244 !important;
+    padding: 15px;
+}
+
+.table tbody tr:hover td {
+    background: #202b3d !important;
+}
+
+
+/* Chart Size */
+
+#licenseChart {
+    max-height: 300px;
+}
+
+
+/* Welcome Card */
+
+.dashboard-welcome {
+    border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+
+/* Responsive Improvements */
+
+@media (max-width: 768px) {
+    .stat-card {
+        min-height: 150px;
+    }
+
+    .content-card {
+        padding: 16px;
+    }
+}
+
+/* Software Management Form */
+
+.content-card .form-label {
+    color: #cbd5e1;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.content-card .form-control,
+.content-card .form-select {
+    background-color: #0b1220;
+    color: #e5e7eb;
+    border: 1px solid #354157;
+    border-radius: 8px;
+    padding: 11px 13px;
+}
+
+.content-card .form-control:focus,
+.content-card .form-select:focus {
+    background-color: #0b1220;
+    color: #ffffff;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.content-card .form-control::placeholder {
+    color: #8491a5;
+}
+
+.content-card .form-select option {
+    background: #151e2e;
+    color: #ffffff;
+}
+
+/* ==========================================
+   LICENSELOOP DASHBOARD WELCOME CARD
+========================================== */
+
+.dashboard-welcome {
+    background: linear-gradient(135deg, #1e293b, #312e81);
+    border: 1px solid #3b4a68;
+    border-radius: 16px;
+    padding: 28px 30px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-welcome h3 {
+    color: #ffffff;
+    font-size: 27px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.dashboard-welcome p {
+    color: #cbd5e1;
+    font-size: 16px;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* Dashboard heading spacing */
+.page-heading {
+    margin-bottom: 20px;
+}
+
+.page-heading h2 {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+.page-heading p {
+    color: #94a3b8;
+}
+
+/* Dashboard cards */
+.stat-card {
+    background: #151f30;
+    border: 1px solid #273449;
+    border-radius: 16px;
+    padding: 30px;
+    height: 100%;
+    transition: transform 0.2s ease,
+                border-color 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: #6366f1;
+}
+
+.stat-card h6 {
+    color: #cbd5e1;
+}
+
+.stat-card h3 {
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+/* Responsive welcome card */
+@media (max-width: 576px) {
+    .dashboard-welcome {
+        padding: 20px;
+    }
+
+    .dashboard-welcome h3 {
+        font-size: 22px;
+    }
+
+    .dashboard-welcome p {
+        font-size: 14px;
+    }
+
+    .stat-card {
+        padding: 22px;
+    }
+}
