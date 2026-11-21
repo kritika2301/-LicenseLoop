@@ -2,7 +2,7 @@
 
 LicenseLoop is a web-based software license management system designed to help organizations manage software licenses, vendors, license expenses, and renewal schedules from one centralized dashboard.
 
-The application provides an organized way to monitor license information, track expiry dates, and generate reports.
+The application provides an organized way to monitor license information, track expiry dates, manage renewals, and generate reports.
 
 ## Features
 
@@ -12,6 +12,10 @@ The application provides an organized way to monitor license information, track 
 - **License Management:** Create, update, view, delete, search, and filter software licenses.
 - **Renewal Tracking:** Monitor upcoming expirations, view renewal reminders, and update license statuses.
 - **Reports:** View license summaries, renewal reports, software expenditure, and export reports as CSV files.
+- **Admin Authentication:** Secure admin login and logout functionality.
+- **Password Security:** Store passwords using secure password hashing.
+- **Session Management:** Restrict application access to authenticated users.
+- **CSRF Protection:** Protect form submissions against Cross-Site Request Forgery attacks.
 
 ## Technology Stack
 
@@ -23,6 +27,8 @@ The application provides an organized way to monitor license information, track 
 | Database Connectivity | Psycopg |
 | Templates | Jinja2 |
 | Charts | Chart.js |
+| Authentication & Security | Werkzeug Security, Flask-WTF |
+| Environment Configuration | python-dotenv |
 | Version Control | Git and GitHub |
 
 ## Project Structure
@@ -32,6 +38,7 @@ LicenseLoop/
 │
 ├── app/
 │   ├── __init__.py
+│   ├── auth.py
 │   ├── db.py
 │   └── routes.py
 │
@@ -47,6 +54,7 @@ LicenseLoop/
 │
 ├── templates/
 │   ├── base.html
+│   ├── login.html
 │   ├── dashboard.html
 │   ├── software.html
 │   ├── edit_software.html
@@ -79,7 +87,7 @@ cd -LicenseLoop
 python -m venv venv
 ```
 
-Activate it on Windows:
+Activate it on Windows PowerShell:
 
 ```powershell
 .\venv\Scripts\Activate.ps1
@@ -104,9 +112,18 @@ Create a `.env` file in the project root:
 
 ```env
 DB_PASSWORD=your_postgresql_password
+SECRET_KEY=your_generated_secret_key
 ```
 
-Use your own PostgreSQL password. Do not upload the `.env` file to GitHub.
+Generate a secure Flask secret key using:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Copy the generated value into `SECRET_KEY`.
+
+**Important:** Replace the database password with your own PostgreSQL password. Never upload your `.env` file or secret key to GitHub.
 
 ### 6. Run the application
 
@@ -120,30 +137,26 @@ Open your browser and visit:
 http://127.0.0.1:5000/
 ```
 
+You will be redirected to the Admin Login page if you are not authenticated.
+
+Use the Admin account configured in the database to log in.
+
 ## Database
 
 LicenseLoop uses PostgreSQL to store:
 
-- User records
-- Vendor details
+- User records and authentication details
+- Vendor information
 - Software information
 - Software license records
 
-## Future Enhancements
+## Security
 
-- User authentication and role-based access.
-- Automated email renewal notifications.
-- Cloud deployment.
-- Advanced analytics and reporting.
+LicenseLoop includes the following security measures:
 
-## Author
-
-**Kritika Manchekar**
-
-MSc Computer Science Student
-
-GitHub: [kritika2301](https://github.com/kritika2301)
-
----
-
-*LicenseLoop – Simplifying Software License and Renewal Management.*
+- Password hashing using Werkzeug.
+- Session-based authentication.
+- Protected application routes.
+- CSRF protection using Flask-WTF.
+- Environment variables for sensitive configuration.
+- Git exclusions for
