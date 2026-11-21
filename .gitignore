@@ -11,3 +11,6 @@ __pycache__/
 
 # VS Code settings
 .vscode/
+
+templates.zip
+templates_backup/

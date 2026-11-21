@@ -21,6 +21,7 @@
     {% endif %}
 
     <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="row g-3">
 
@@ -193,6 +194,7 @@
                               action="{{ url_for('main.delete_software', software_id=item[0]) }}"
                               class="d-inline"
                               onsubmit="return confirm('Delete this software?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                             <button type="submit"
                                     class="btn btn-sm btn-outline-danger">

@@ -24,6 +24,7 @@
         <h4 class="mb-4">Add New License</h4>
 
         <form method="POST" action="{{ url_for('main.licenses_list') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row g-3">
 
                 <div class="col-md-6">
@@ -197,6 +198,7 @@
                                 <form method="POST"
                                       action="{{ url_for('main.delete_license', license_id=item[0]) }}"
                                       onsubmit="return confirm('Delete this license?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-danger">
                                         Delete

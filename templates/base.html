@@ -28,7 +28,6 @@
         <!-- Sidebar -->
         <aside class="sidebar">
 
-            <!-- Clickable Brand Logo -->
             <a href="{{ url_for('main.dashboard') }}"
                class="brand text-decoration-none">
 
@@ -41,72 +40,51 @@
 
                 <p class="menu-heading">MAIN MENU</p>
 
-                <!-- Dashboard -->
                 <a href="{{ url_for('main.dashboard') }}"
                    class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
-
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
-
                 </a>
 
-                <!-- Software -->
                 <a href="{{ url_for('main.software_list') }}"
                    class="nav-link {% if request.endpoint in ['main.software_list', 'main.edit_software'] %}active{% endif %}">
-
                     <i class="bi bi-pc-display"></i>
                     <span>Software</span>
-
                 </a>
 
-                <!-- Vendors -->
                 <a href="{{ url_for('main.vendors_list') }}"
                    class="nav-link {% if request.endpoint in ['main.vendors_list', 'main.edit_vendor'] %}active{% endif %}">
-
                     <i class="bi bi-buildings"></i>
                     <span>Vendors</span>
-
                 </a>
 
-                <!-- Licenses -->
                 <a href="{{ url_for('main.licenses_list') }}"
                    class="nav-link {% if request.endpoint in ['main.licenses_list', 'main.edit_license'] %}active{% endif %}">
-
                     <i class="bi bi-key"></i>
                     <span>Licenses</span>
-
                 </a>
 
-                <!-- Renewals -->
                 <a href="{{ url_for('main.renewals') }}"
                    class="nav-link {% if request.endpoint in ['main.renewals', 'main.update_renewal_status'] %}active{% endif %}">
-
                     <i class="bi bi-arrow-repeat"></i>
                     <span>Renewals</span>
-
                 </a>
 
-                <!-- Reports -->
                 <a href="{{ url_for('main.reports') }}"
                    class="nav-link {% if request.endpoint == 'main.reports' %}active{% endif %}">
-
                     <i class="bi bi-bar-chart"></i>
                     <span>Reports</span>
-
                 </a>
 
             </div>
 
             <!-- Sidebar Footer -->
             <div class="sidebar-footer">
-
                 <i class="bi bi-shield-check"></i>
                 <span>LicenseLoop Management</span>
-
             </div>
 
         </aside>
-
 
         <!-- Main Content -->
         <main class="main-content">
@@ -119,18 +97,40 @@
                     <small>Manage your software resources efficiently</small>
                 </div>
 
-                <div class="profile">
+                <div class="profile d-flex align-items-center gap-3">
 
                     <i class="bi bi-bell"></i>
 
-                    <div class="profile-avatar">A</div>
+                    <div class="profile-avatar">
+                        {{ session.get('full_name', 'Admin')[0] | upper }}
+                    </div>
 
-                    <span>Admin</span>
+                    <span>
+                        {{ session.get('full_name', 'Admin') }}
+                    </span>
+
+                    <!-- Secure Logout Button -->
+                    <form action="{{ url_for('auth.logout') }}"
+                          method="POST"
+                          class="d-inline">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm ms-2">
+
+                            <i class="bi bi-box-arrow-right me-1"></i>
+                            Logout
+
+                        </button>
+
+                    </form>
 
                 </div>
 
             </header>
-
 
             <!-- Page Content -->
             <section class="page-content">
@@ -143,7 +143,6 @@
         </main>
 
     </div>
-
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">

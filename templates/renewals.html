@@ -168,6 +168,7 @@
                             <form method="POST"
                                   action="{{ url_for('main.update_renewal_status', license_id=item[0]) }}"
                                   class="d-flex gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                                 <select name="status"
                                         class="form-select form-select-sm">
