@@ -42,17 +42,29 @@ CREATE TABLE licenses (
     software_id INTEGER NOT NULL,
     created_by INTEGER NOT NULL,
 
-    license_type VARCHAR(30) NOT NULL,
-    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    license_type VARCHAR(30) NOT NULL
+        CHECK (license_type IN ('subscription', 'perpetual')),
+
+    quantity INTEGER NOT NULL
+        CHECK (quantity > 0),
 
     purchase_date DATE NOT NULL,
     expiry_date DATE NOT NULL,
 
-    cost NUMERIC(10,2) NOT NULL CHECK (cost >= 0),
-    currency VARCHAR(3) DEFAULT 'INR',
+    cost NUMERIC(10,2) NOT NULL
+        CHECK (cost >= 0),
 
-    status VARCHAR(20) DEFAULT 'active'
-        CHECK (status IN ('active', 'expired', 'cancelled', 'suspended')),
+    currency VARCHAR(3) NOT NULL DEFAULT 'INR',
+
+    status VARCHAR(20) NOT NULL DEFAULT 'active'
+        CHECK (
+            status IN (
+                'active',
+                'expired',
+                'cancelled',
+                'suspended'
+            )
+        ),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -67,8 +79,23 @@ CREATE TABLE licenses (
         ON DELETE RESTRICT,
 
     CONSTRAINT check_license_dates
-        CHECK (expiry_date >= purchase_date),
-
-    CONSTRAINT check_license_type
-        CHECK (license_type IN ('subscription', 'perpetual'))
+        CHECK (expiry_date >= purchase_date)
 );
+
+
+-- Performance indexes
+
+CREATE INDEX idx_software_vendor
+ON software(vendor_id);
+
+CREATE INDEX idx_license_software
+ON licenses(software_id);
+
+CREATE INDEX idx_license_created_by
+ON licenses(created_by);
+
+CREATE INDEX idx_license_expiry
+ON licenses(expiry_date);
+
+CREATE INDEX idx_license_status
+ON licenses(status);

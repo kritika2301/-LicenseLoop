@@ -1,6 +1,9 @@
 
+import os
+
 from flask import Flask, session, redirect, url_for, request
 from flask_wtf.csrf import CSRFProtect
+
 from app.routes import main
 from app.auth import auth
 from config import Config
@@ -22,6 +25,12 @@ def create_app():
             "SECRET_KEY is missing. Add it to your .env file."
         )
 
+    if os.getenv("FLASK_ENV", "development").lower() == "production":
+        if not app.config.get("SESSION_COOKIE_SECURE"):
+            raise RuntimeError(
+                "SESSION_COOKIE_SECURE must be enabled in production."
+            )
+
     csrf.init_app(app)
 
     app.register_blueprint(main)
@@ -29,7 +38,7 @@ def create_app():
 
     @app.before_request
     def require_login():
-        if request.endpoint in ("auth.login", "auth.logout", "static"):
+        if request.endpoint in ("auth.login", "static"):
             return None
 
         if not session.get("user_id"):

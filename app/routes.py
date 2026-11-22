@@ -8,15 +8,14 @@ from flask import (
     request,
     redirect,
     url_for,
-    Response
+    Response,
+    session
 )
 
 from app.db import get_db_connection
 
 
 main = Blueprint("main", __name__)
-
-ADMIN_USER_ID = 1
 
 
 # ==========================================
@@ -190,8 +189,6 @@ def software_list():
         except Exception as e:
             connection.rollback()
             error = str(e)
-
-    # Search and filters
 
     search = request.args.get("search", "").strip()
 
@@ -664,7 +661,6 @@ def delete_vendor(vendor_id):
 
     return redirect(url_for("main.vendors_list"))
 
-
 # ==========================================
 # 5. LICENSE MANAGEMENT
 # ==========================================
@@ -751,7 +747,7 @@ def licenses_list():
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, (
                 software_id,
-                ADMIN_USER_ID,
+                session["user_id"],
                 license_type,
                 quantity,
                 purchase_date,
@@ -1058,32 +1054,21 @@ def delete_license(license_id):
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    try:
+    cursor.execute("""
+        DELETE FROM licenses
+        WHERE license_id = %s;
+    """, (license_id,))
 
-        cursor.execute("""
-            DELETE FROM licenses
-            WHERE license_id = %s;
-        """, (license_id,))
-
-        if cursor.rowcount == 0:
-
-            connection.rollback()
-
-            cursor.close()
-            connection.close()
-
-            return "License record not found.", 404
-
-        connection.commit()
-
-    except Exception:
+    if cursor.rowcount == 0:
 
         connection.rollback()
 
         cursor.close()
         connection.close()
 
-        return "Unable to delete this license.", 500
+        return "License not found.", 404
+
+    connection.commit()
 
     cursor.close()
     connection.close()
@@ -1112,35 +1097,7 @@ def renewals():
 
     connection.commit()
 
-    # Renewal statistics
-
-    cursor.execute("""
-        SELECT
-            COUNT(*),
-
-            COUNT(*) FILTER (
-                WHERE status = 'active'
-                AND expiry_date BETWEEN CURRENT_DATE
-                AND CURRENT_DATE + INTERVAL '30 days'
-            ),
-
-            COUNT(*) FILTER (
-                WHERE expiry_date < CURRENT_DATE
-                OR status = 'expired'
-            )
-
-        FROM licenses;
-    """)
-
-    result = cursor.fetchone()
-
-    renewal_stats = {
-        "total": result[0],
-        "expiring": result[1],
-        "expired": result[2]
-    }
-
-    # License renewal status
+    # Fetch upcoming and expired renewals
 
     cursor.execute("""
         SELECT
@@ -1148,54 +1105,13 @@ def renewals():
             s.software_name,
             v.vendor_name,
             l.license_type,
-            l.expiry_date,
-            l.status,
-
-            CASE
-                WHEN l.expiry_date < CURRENT_DATE
-                     OR l.status = 'expired'
-                    THEN 'expired'
-
-                WHEN l.status = 'active'
-                     AND l.expiry_date <= CURRENT_DATE
-                         + INTERVAL '30 days'
-                    THEN 'expiring soon'
-
-                ELSE l.status
-            END AS renewal_status
-
-        FROM licenses l
-
-        JOIN software s
-            ON l.software_id = s.software_id
-
-        JOIN vendors v
-            ON s.vendor_id = v.vendor_id
-
-        ORDER BY l.expiry_date ASC;
-    """)
-
-    licenses = cursor.fetchall()
-
-    # Renewal reminders
-
-    cursor.execute("""
-        SELECT
-            l.license_id,
-            s.software_name,
-            v.vendor_name,
-            l.license_type,
-            l.purchase_date,
             l.expiry_date,
             l.cost,
+            l.currency,
+            l.status,
 
-            CASE
-                WHEN l.expiry_date < CURRENT_DATE
-                     OR l.status = 'expired'
-                    THEN 'expired'
-
-                ELSE 'expiring soon'
-            END AS reminder_status
+            (l.expiry_date - CURRENT_DATE)
+                AS days_remaining
 
         FROM licenses l
 
@@ -1208,19 +1124,55 @@ def renewals():
         WHERE l.expiry_date <= CURRENT_DATE
               + INTERVAL '30 days'
 
+        AND l.status NOT IN ('cancelled', 'suspended')
+
         ORDER BY l.expiry_date ASC;
     """)
 
-    reminders = cursor.fetchall()
+    renewal_records = cursor.fetchall()
+
+    # Renewal summary
+
+    cursor.execute("""
+        SELECT
+
+            COUNT(*) FILTER (
+                WHERE expiry_date < CURRENT_DATE
+                OR status = 'expired'
+            ),
+
+            COUNT(*) FILTER (
+                WHERE status = 'active'
+                AND expiry_date BETWEEN CURRENT_DATE
+                AND CURRENT_DATE + INTERVAL '7 days'
+            ),
+
+            COUNT(*) FILTER (
+                WHERE status = 'active'
+                AND expiry_date > CURRENT_DATE + INTERVAL '7 days'
+                AND expiry_date <= CURRENT_DATE + INTERVAL '30 days'
+            )
+
+        FROM licenses
+
+        WHERE status NOT IN ('cancelled', 'suspended');
+    """)
+
+    summary_result = cursor.fetchone()
+
+    renewal_summary = {
+        "expired": summary_result[0],
+        "due_this_week": summary_result[1],
+        "due_this_month": summary_result[2]
+    }
 
     cursor.close()
     connection.close()
 
     return render_template(
         "renewals.html",
-        stats=renewal_stats,
-        licenses=licenses,
-        reminders=reminders
+        renewal_records=renewal_records,
+        renewal_summary=renewal_summary
     )
 
 
